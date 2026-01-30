@@ -4,7 +4,7 @@
 // it under the terms of the GNU Affero General Public License version 3
 // as published by the Free Software Foundation.
 
-// Production Claude agent execution with retry, git checkpoints, and audit logging
+// Production LLM agent execution with retry, git checkpoints, and audit logging
 
 import { fs, path } from 'zx';
 import chalk, { type ChalkInstance } from 'chalk';
@@ -54,6 +54,24 @@ interface StdioMcpServer {
 }
 
 type McpServer = ReturnType<typeof createShannonHelperServer> | StdioMcpServer;
+
+const DEFAULT_OLLAMA_MODEL = 'huihui_ai/qwen2.5-coder-abliterate:7b';
+
+function resolveDefaultModel(): string {
+  const routerDefault = process.env.ROUTER_DEFAULT;
+  if (routerDefault) {
+    const parts = routerDefault.split(',');
+    if (parts.length >= 2) {
+      return parts.slice(1).join(',');
+    }
+  }
+
+  return (
+    process.env.SHANNON_MODEL ||
+    process.env.OLLAMA_MODEL ||
+    DEFAULT_OLLAMA_MODEL
+  );
+}
 
 // Configures MCP servers for agent execution, with Docker-specific Chromium handling
 function buildMcpServers(
@@ -198,7 +216,7 @@ export async function runClaudePrompt(
   prompt: string,
   sourceDir: string,
   context: string = '',
-  description: string = 'Claude analysis',
+  description: string = 'LLM analysis',
   agentName: string | null = null,
   colorFn: ChalkInstance = chalk.cyan,
   sessionMetadata: SessionMetadata | null = null,
@@ -215,11 +233,11 @@ export async function runClaudePrompt(
   );
   const auditLogger = createAuditLogger(auditSession);
 
-  console.log(chalk.blue(`  Running Claude Code: ${description}...`));
+  console.log(chalk.blue(`  Running LLM: ${description}...`));
 
   const mcpServers = buildMcpServers(sourceDir, agentName);
   const options = {
-    model: 'claude-sonnet-4-5-20250929',
+    model: resolveDefaultModel(),
     maxTurns: 10_000,
     cwd: sourceDir,
     permissionMode: 'bypassPermissions' as const,
@@ -253,7 +271,7 @@ export async function runClaudePrompt(
 
     // === SPENDING CAP SAFEGUARD ===
     // Defense-in-depth: Detect spending cap that slipped through detectApiError().
-    // When spending cap is hit, Claude returns a short message with $0 cost.
+    // When spending cap is hit, the provider may return a short message with $0 cost.
     // Legitimate agent work NEVER costs $0 with only 1-2 turns.
     if (turnCount <= 2 && totalCost === 0) {
       const resultLower = (result || '').toLowerCase();
@@ -396,7 +414,7 @@ export async function runClaudePromptWithRetry(
   sourceDir: string,
   _allowedTools: string = 'Read',
   context: string = '',
-  description: string = 'Claude analysis',
+  description: string = 'LLM analysis',
   agentName: string | null = null,
   colorFn: ChalkInstance = chalk.cyan,
   sessionMetadata: SessionMetadata | null = null

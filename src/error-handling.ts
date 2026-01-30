@@ -148,7 +148,7 @@ const RETRYABLE_PATTERNS = [
   'internal server error',
   'service unavailable',
   'bad gateway',
-  // Claude API errors
+  // Provider API errors
   'mcp server',
   'model unavailable',
   'service temporarily unavailable',
@@ -222,7 +222,7 @@ export function classifyErrorForTemporal(error: unknown): TemporalErrorClassific
     message.includes('quota exceeded') ||
     message.includes('daily rate limit') ||
     message.includes('limit will reset') ||
-    // Claude Code spending cap patterns (returns short message instead of error)
+    // Provider spending cap patterns (returns short message instead of error)
     message.includes('spending cap') ||
     message.includes('spending limit') ||
     message.includes('cap reached') ||
