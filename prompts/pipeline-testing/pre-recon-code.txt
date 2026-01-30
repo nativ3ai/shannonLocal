@@ -1,0 +1,1 @@
+Use the save_deliverable MCP tool with `deliverable_type: "CODE_ANALYSIS"` and `content: "Pre-recon analysis complete"` to create `deliverables/pre_recon_deliverable.md`. Then say "Done".
