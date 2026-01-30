@@ -36,11 +36,14 @@ Options for 'start':
   OUTPUT=<path>          Output directory for reports (default: ./audit-logs/)
   PIPELINE_TESTING=true  Use minimal prompts for fast testing
   ROUTER=true            Route requests through claude-code-router (Ollama + multi-model support)
+  URL=<url>              Target URL (default: http://host.docker.internal:3000)
+  REPO=<path>            Repo path (default: current directory)
 
 Options for 'stop':
   CLEAN=true             Remove all data including volumes
 
 Examples:
+  ./shannon start
   ./shannon start URL=https://example.com REPO=/path/to/repo
   ./shannon start URL=https://example.com REPO=/path/to/repo CONFIG=./config.yaml
   ./shannon start URL=https://example.com REPO=/path/to/repo OUTPUT=./my-reports
@@ -116,11 +119,14 @@ ensure_containers() {
 cmd_start() {
   parse_args "$@"
 
-  # Validate required vars
-  if [ -z "$URL" ] || [ -z "$REPO" ]; then
-    echo "ERROR: URL and REPO are required"
-    echo "Usage: ./shannon start URL=<url> REPO=<path>"
-    exit 1
+  if [ -z "$URL" ]; then
+    URL="${SHANNON_URL:-http://host.docker.internal:3000}"
+    echo "URL not provided. Defaulting to $URL"
+  fi
+
+  if [ -z "$REPO" ]; then
+    REPO="$(pwd)"
+    echo "REPO not provided. Defaulting to $REPO"
   fi
 
   # Check for API key (router mode can use Ollama or alternative provider API keys)

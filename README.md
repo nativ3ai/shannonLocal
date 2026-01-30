@@ -128,6 +128,10 @@ OLLAMA_BASE_URL=http://host.docker.internal:11434/v1/chat/completions
 EOF
 
 # 3. Run a pentest
+# If your app is on localhost:3000 and you're in the repo, you can just run:
+./shannon start
+
+# Or provide explicit URL/REPO:
 ./shannon start URL=https://your-app.com REPO=/path/to/your/repo
 ```
 
