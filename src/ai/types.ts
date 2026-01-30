@@ -4,7 +4,7 @@
 // it under the terms of the GNU Affero General Public License version 3
 // as published by the Free Software Foundation.
 
-// Type definitions for Claude executor message processing pipeline
+// Type definitions for LLM executor message processing pipeline
 
 export interface ExecutionContext {
   isParallelExecution: boolean;

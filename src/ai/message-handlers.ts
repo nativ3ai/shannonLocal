@@ -57,7 +57,7 @@ export function detectApiError(content: string): ApiErrorDetection {
   const lowerContent = content.toLowerCase();
 
   // === BILLING/SPENDING CAP ERRORS (Retryable with long backoff) ===
-  // When Claude Code hits its spending cap, it returns a short message like
+  // When a provider hits its spending cap, it may return a short message like
   // "Spending cap reached resets 8am" instead of throwing an error.
   // These should retry with 5-30 min backoff so workflows can recover when cap resets.
   const BILLING_PATTERNS = [
