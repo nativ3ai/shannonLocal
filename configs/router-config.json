@@ -7,6 +7,12 @@
   "API_TIMEOUT_MS": 600000,
   "Providers": [
     {
+      "name": "ollama",
+      "api_base_url": "$OLLAMA_BASE_URL",
+      "api_key": "$OLLAMA_API_KEY",
+      "models": ["huihui_ai/qwen2.5-coder-abliterate:7b"]
+    },
+    {
       "name": "openai",
       "api_base_url": "https://api.openai.com/v1/chat/completions",
       "api_key": "$OPENAI_API_KEY",
