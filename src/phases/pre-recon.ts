@@ -19,6 +19,7 @@ interface AgentResult {
   success: boolean;
   duration: number;
   cost?: number | undefined;
+  result?: string | null | undefined;
   error?: string | undefined;
   retryable?: boolean | undefined;
 }
@@ -281,7 +282,21 @@ async function stitchPreReconOutputs(wave1: Wave1Results, additionalScans: Termi
   } catch (error) {
     const err = error as Error;
     console.log(chalk.yellow(`⚠️ Could not read code analysis deliverable: ${err.message}`));
-    codeAnalysisContent = 'Analysis located in deliverables/code_analysis_deliverable.md';
+    const fallbackContent = wave1.codeAnalysis?.result?.trim();
+    if (fallbackContent) {
+      codeAnalysisContent = fallbackContent;
+      try {
+        const codeAnalysisPath = path.join(sourceDir, 'deliverables', 'code_analysis_deliverable.md');
+        await fs.ensureDir(path.join(sourceDir, 'deliverables'));
+        await fs.writeFile(codeAnalysisPath, fallbackContent);
+        console.log(chalk.green('✅ Wrote fallback code analysis deliverable from agent output'));
+      } catch (writeError) {
+        const writeErr = writeError as Error;
+        console.log(chalk.yellow(`⚠️ Failed to write fallback code analysis deliverable: ${writeErr.message}`));
+      }
+    } else {
+      codeAnalysisContent = 'Analysis located in deliverables/code_analysis_deliverable.md';
+    }
   }
 
   // Build additional scans section
